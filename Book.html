@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Online Bookstore</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+  <style>
+    main::-webkit-scrollbar {
+      width: 5px;
+    }
+    main::-webkit-scrollbar-thumb {
+      background-color: #0d6efd;
+      border-radius: 10px;
+    }
+    .book-card {
+      transition: transform 0.3s;
+    }
+    .book-card:hover {
+      transform: scale(1.03);
+    }
+    .login-modal, .register-modal {
+      max-width: 400px;
+    }
+  </style>
+</head>
+<body class="container-fluid">
+  <header class="bg-primary text-center p-2 text-white">
+    <h1><span class="bi bi-book"></span> Online Bookstore</h1>
+  </header>
+
+  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container-fluid">
+      <div class="d-flex">
+        <button class="btn btn-primary me-2" data-bs-toggle="modal" data-bs-target="#loginModal">
+          <span class="bi bi-box-arrow-in-right"></span> Login
+        </button>
+        <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#registerModal">
+          <span class="bi bi-person-plus"></span> Register
+        </button>
+      </div>
+      <div class="d-flex">
+        <button onclick="showCartItems()" class="btn btn-primary position-relative">
+          <span class="bi bi-cart"></span> Cart
+          <span id="lblcount" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">0</span>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <section class="mt-3 row">
+    <aside class="col-md-3">
+      <div class="card">
+        <div class="card-header bg-primary text-white">
+          <h5>Search Books</h5>
+        </div>
+        <div class="card-body">
+          <div class="mb-3">
+            <label class="form-label">Search by:</label>
+            <select class="form-select" id="searchType">
+              <option value="title">Title</option>
+              <option value="author">Author</option>
+              <option value="subject">Subject</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <input type="text" class="form-control" id="searchInput" placeholder="Enter search term">
+          </div>
+          <button onclick="searchBooks()" class="btn btn-primary w-100">Search</button>
+        </div>
+      </div>
+      
+      <div class="card mt-3">
+        <div class="card-header bg-primary text-white">
+          <h5>Categories</h5>
+        </div>
+        <div class="card-body">
+          <div class="list-group">
+            <a href="#" class="list-group-item list-group-item-action" onclick="loadBooksBySubject('fiction')">Fiction</a>
+            <a href="#" class="list-group-item list-group-item-action" onclick="loadBooksBySubject('science')">Science</a>
+            <a href="#" class="list-group-item list-group-item-action" onclick="loadBooksBySubject('history')">History</a>
+            <a href="#" class="list-group-item list-group-item-action" onclick="loadBooksBySubject('biography')">Biography</a>
+            <a href="#" class="list-group-item list-group-item-action" onclick="loadBooksBySubject('technology')">Technology</a>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="col-md-9 d-flex flex-wrap overflow-auto" style="height: 600px;" id="bookResults">
+      <!-- Books will be loaded here -->
+    </main>
+  </section>
+
+  <!-- Login Modal -->
+  <div class="modal fade" id="loginModal" tabindex="-1">
+    <div class="modal-dialog login-modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Login</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <form id="loginForm">
+            <div class="mb-3">
+              <label for="loginEmail" class="form-label">Email</label>
+              <input type="email" class="form-control" id="loginEmail" required>
+            </div>
+            <div class="mb-3">
+              <label for="loginPassword" class="form-label">Password</label>
+              <input type="password" class="form-control" id="loginPassword" required>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Login</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Register Modal -->
+  <div class="modal fade" id="registerModal" tabindex="-1">
+    <div class="modal-dialog register-modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Register</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <form id="registerForm">
+            <div class="mb-3">
+              <label for="registerName" class="form-label">Full Name</label>
+              <input type="text" class="form-control" id="registerName" required>
+            </div>
+            <div class="mb-3">
+              <label for="registerEmail" class="form-label">Email</label>
+              <input type="email" class="form-control" id="registerEmail" required>
+            </div>
+            <div class="mb-3">
+              <label for="registerPassword" class="form-label">Password</label>
+              <input type="password" class="form-control" id="registerPassword" required>
+            </div>
+            <div class="mb-3">
+              <label for="registerAddress" class="form-label">Shipping Address</label>
+              <textarea class="form-control" id="registerAddress" rows="3" required></textarea>
+            </div>
+            <div class="mb-3">
+              <label for="registerPhone" class="form-label">Phone Number</label>
+              <input type="tel" class="form-control" id="registerPhone" required>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Register</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cart Modal -->
+  <div class="modal fade" id="cartModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Your Shopping Cart</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Book</th>
+                <th>Price</th>
+                <th>Quantity</th>
+                <th>Total</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="cartItems">
+              <!-- Cart items will be loaded here -->
+            </tbody>
+          </table>
+          <div class="text-end">
+            <h5>Total: <span id="cartTotal" class="text-primary">$0.00</span></h5>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Continue Shopping</button>
+          <button type="button" class="btn btn-primary" onclick="checkout()">Proceed to Checkout</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Checkout Modal -->
+  <div class="modal fade" id="checkoutModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Checkout</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <form id="paymentForm">
+            <div class="mb-3">
+              <label class="form-label">Card Number</label>
+              <input type="text" class="form-control" placeholder="1234 5678 9012 3456" required>
+            </div>
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label class="form-label">Expiry Date</label>
+                <input type="text" class="form-control" placeholder="MM/YY" required>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">CVV</label>
+                <input type="text" class="form-control" placeholder="123" required>
+              </div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Name on Card</label>
+              <input type="text" class="form-control" required>
+            </div>
+          </form>
+          <div class="alert alert-info">
+            <h6>Order Summary</h6>
+            <div id="orderSummary"></div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-primary" onclick="processPayment()">Complete Purchase</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Receipt Modal -->
+  <div class="modal fade" id="receiptModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Order Confirmation</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="alert alert-success">
+            <h5>Thank you for your order!</h5>
+            <p>Your payment has been processed successfully.</p>
+          </div>
+          <div id="receiptDetails"></div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Done</button>
+          <button type="button" class="btn btn-outline-primary" onclick="printReceipt()">
+            <span class="bi bi-printer"></span> Print Receipt
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Global variables
+    let currentUser = null;
+    let cartItems = [];
+    let booksCache = {};
+
+    // DOM Loaded
+    document.addEventListener('DOMContentLoaded', function() {
+      loadFeaturedBooks();
+      setupEventListeners();
+    });
+
+    function setupEventListeners() {
+      // Login form
+      document.getElementById('loginForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        login();
+      });
+
+      // Register form
+      document.getElementById('registerForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        register();
+      });
+    }
+
+    function loadFeaturedBooks() {
+      // Using Open Library API for featured books
+      fetch('https://openlibrary.org/subjects/fiction.json?limit=12')
+        .then(response => response.json())
+        .then(data => {
+          displayBooks(data.works);
+          cacheBooks(data.works);
+        });
+    }
+
+    function searchBooks() {
+      const searchType = document.getElementById('searchType').value;
+      const searchTerm = document.getElementById('searchInput').value.trim();
+      
+      if (!searchTerm) {
+        alert('Please enter a search term');
+        return;
+      }
+
+      let apiUrl = '';
+      if (searchType === 'title') {
+        apiUrl = `https://openlibrary.org/search.json?title=${encodeURIComponent(searchTerm)}&limit=20`;
+      } else if (searchType === 'author') {
+        apiUrl = `https://openlibrary.org/search.json?author=${encodeURIComponent(searchTerm)}&limit=20`;
+      } else if (searchType === 'subject') {
+        apiUrl = `https://openlibrary.org/subjects/${encodeURIComponent(searchTerm)}.json?limit=20`;
+      }
+
+      fetch(apiUrl)
+        .then(response => response.json())
+        .then(data => {
+          const works = data.works || (data.docs ? data.docs.map(doc => ({ key: doc.key, title: doc.title })) : []);
+          displayBooks(works);
+          cacheBooks(works);
+        })
+        .catch(error => {
+          console.error('Error searching books:', error);
+          alert('Error searching books. Please try again.');
+        });
+    }
+
+    function loadBooksBySubject(subject) {
+      fetch(`https://openlibrary.org/subjects/${subject}.json?limit=20`)
+        .then(response => response.json())
+        .then(data => {
+          displayBooks(data.works);
+          cacheBooks(data.works);
+        });
+    }
+
+    function cacheBooks(works) {
+      works.forEach(work => {
+        const bookId = work.key.split('/').pop();
+        booksCache[bookId] = work;
+      });
+    }
+
+    function displayBooks(works) {
+      const bookResults = document.getElementById('bookResults');
+      bookResults.innerHTML = '';
+
+      if (!works || works.length === 0) {
+        bookResults.innerHTML = '<div class="col-12 text-center"><p>No books found. Try a different search.</p></div>';
+        return;
+      }
+
+      works.forEach(work => {
+        const bookId = work.key.split('/').pop();
+        const coverId = work.cover_id || (work.cover && work.cover.medium && work.cover.medium.split('/').pop());
+        const coverUrl = coverId ? `https://covers.openlibrary.org/b/id/${coverId}-M.jpg` : 'https://via.placeholder.com/150x200?text=No+Cover';
+        
+        const authors = work.authors ? work.authors.map(author => author.name).join(', ') : 'Unknown Author';
+        const price = (Math.random() * 50 + 10).toFixed(2); // Random price between 10 and 60
+        
+        const bookCard = document.createElement('div');
+        bookCard.className = 'card book-card m-2 p-2';
+        bookCard.style.width = '200px';
+        bookCard.innerHTML = `
+          <img src="${coverUrl}" class="card-img-top" alt="${work.title}" style="height: 200px; object-fit: contain;">
+          <div class="card-body">
+            <h6 class="card-title">${work.title}</h6>
+            <p class="card-text text-muted small">by ${authors}</p>
+          </div>
+          <div class="card-footer bg-white">
+            <div class="d-flex justify-content-between align-items-center">
+              <span class="text-primary fw-bold">$${price}</span>
+              <button onclick="addToCart('${bookId}', '${work.title}', ${price})" class="btn btn-sm btn-primary">
+                <span class="bi bi-cart-plus"></span>
+              </button>
+            </div>
+          </div>
+        `;
+        bookResults.appendChild(bookCard);
+      });
+    }
+
+    function login() {
+      const email = document.getElementById('loginEmail').value;
+      const password = document.getElementById('loginPassword').value;
+      
+      // In a real app, you would validate with a server
+      if (email && password) {
+        currentUser = {
+          email: email,
+          name: "Demo User" // Normally you'd get this from the server
+        };
+        alert('Login successful!');
+        document.querySelector('#loginModal .btn-close').click();
+        updateUserUI();
+      } else {
+        alert('Please enter both email and password');
+      }
+    }
+
+    function register() {
+      const name = document.getElementById('registerName').value;
+      const email = document.getElementById('registerEmail').value;
+      const password = document.getElementById('registerPassword').value;
+      const address = document.getElementById('registerAddress').value;
+      const phone = document.getElementById('registerPhone').value;
+      
+      // In a real app, you would send this to a server
+      if (name && email && password && address && phone) {
+        currentUser = {
+          name: name,
+          email: email,
+          address: address,
+          phone: phone
+        };
+        alert('Registration successful! You are now logged in.');
+        document.querySelector('#registerModal .btn-close').click();
+        updateUserUI();
+      } else {
+        alert('Please fill in all fields');
+      }
+    }
+
+    function updateUserUI() {
+      if (currentUser) {
+        document.querySelector('.navbar .d-flex:first-child').innerHTML = `
+          <span class="me-2">Welcome, ${currentUser.name}</span>
+          <button class="btn btn-outline-danger" onclick="logout()">
+            <span class="bi bi-box-arrow-right"></span> Logout
+          </button>
+        `;
+      }
+    }
+
+    function logout() {
+      currentUser = null;
+      alert('You have been logged out');
+      location.reload(); // Refresh the page to reset UI
+    }
+
+    function addToCart(bookId, title, price) {
+      if (!currentUser) {
+        alert('Please login to add items to your cart');
+        return;
+      }
+      
+      const existingItem = cartItems.find(item => item.id === bookId);
+      
+      if (existingItem) {
+        existingItem.quantity += 1;
+      } else {
+        cartItems.push({
+          id: bookId,
+          title: title,
+          price: parseFloat(price),
+          quantity: 1
+        });
+      }
+      
+      updateCartCount();
+      alert(`"${title}" added to your cart`);
+    }
+
+    function updateCartCount() {
+      const totalItems = cartItems.reduce((total, item) => total + item.quantity, 0);
+      document.getElementById('lblcount').textContent = totalItems;
+    }
+
+    function showCartItems() {
+      if (!currentUser) {
+        alert('Please login to view your cart');
+        return;
+      }
+      
+      const cartItemsTable = document.getElementById('cartItems');
+      cartItemsTable.innerHTML = '';
+      
+      if (cartItems.length === 0) {
+        cartItemsTable.innerHTML = '<tr><td colspan="5" class="text-center">Your cart is empty</td></tr>';
+        document.getElementById('cartTotal').textContent = '$0.00';
+        return;
+      }
+      
+      let total = 0;
+      
+      cartItems.forEach((item, index) => {
+        const row = document.createElement('tr');
+        const itemTotal = item.price * item.quantity;
+        total += itemTotal;
+        
+        row.innerHTML = `
+          <td>${item.title}</td>
+          <td>$${item.price.toFixed(2)}</td>
+          <td>
+            <div class="input-group input-group-sm" style="width: 120px;">
+              <button class="btn btn-outline-secondary" onclick="updateQuantity(${index}, -1)">-</button>
+              <input type="number" class="form-control text-center" value="${item.quantity}" min="1" 
+                onchange="updateQuantityInput(${index}, this.value)">
+              <button class="btn btn-outline-secondary" onclick="updateQuantity(${index}, 1)">+</button>
+            </div>
+          </td>
+          <td>$${itemTotal.toFixed(2)}</td>
+          <td>
+            <button class="btn btn-sm btn-danger" onclick="removeFromCart(${index})">
+              <span class="bi bi-trash"></span>
+            </button>
+          </td>
+        `;
+        
+        cartItemsTable.appendChild(row);
+      });
+      
+      document.getElementById('cartTotal').textContent = `$${total.toFixed(2)}`;
+      
+      // Show the modal
+      const cartModal = new bootstrap.Modal(document.getElementById('cartModal'));
+      cartModal.show();
+    }
+
+    function updateQuantity(index, change) {
+      const newQuantity = cartItems[index].quantity + change;
+      
+      if (newQuantity < 1) {
+        removeFromCart(index);
+        return;
+      }
+      
+      cartItems[index].quantity = newQuantity;
+      showCartItems();
+      updateCartCount();
+    }
+
+    function updateQuantityInput(index, value) {
+      const newQuantity = parseInt(value);
+      
+      if (isNaN(newQuantity) || newQuantity < 1) {
+        showCartItems(); // Reset to previous value
+        return;
+      }
+      
+      cartItems[index].quantity = newQuantity;
+      showCartItems();
+      updateCartCount();
+    }
+
+    function removeFromCart(index) {
+      cartItems.splice(index, 1);
+      showCartItems();
+      updateCartCount();
+    }
+
+    function checkout() {
+      if (cartItems.length === 0) {
+        alert('Your cart is empty');
+        return;
+      }
+      
+      // Prepare order summary
+      const orderSummary = document.getElementById('orderSummary');
+      let summaryHTML = '';
+      let total = 0;
+      
+      cartItems.forEach(item => {
+        const itemTotal = item.price * item.quantity;
+        total += itemTotal;
+        summaryHTML += `
+          <div class="d-flex justify-content-between">
+            <span>${item.title} (x${item.quantity})</span>
+            <span>$${itemTotal.toFixed(2)}</span>
+          </div>
+        `;
+      });
+      
+      summaryHTML += `
+        <hr>
+        <div class="d-flex justify-content-between fw-bold">
+          <span>Total</span>
+          <span>$${total.toFixed(2)}</span>
+        </div>
+      `;
+      
+      orderSummary.innerHTML = summaryHTML;
+      
+      // Switch modals
+      const cartModal = bootstrap.Modal.getInstance(document.getElementById('cartModal'));
+      cartModal.hide();
+      
+      const checkoutModal = new bootstrap.Modal(document.getElementById('checkoutModal'));
+      checkoutModal.show();
+    }
+
+    function processPayment() {
+      // In a real app, you would process payment with a payment gateway
+      // For demo, we'll just show a success message
+      
+      // Generate receipt
+      const receiptDetails = document.getElementById('receiptDetails');
+      let receiptHTML = `
+        <h6>Order #${Math.floor(Math.random() * 1000000)}</h6>
+        <p>Date: ${new Date().toLocaleString()}</p>
+        <hr>
+        <h6>Shipping to:</h6>
+        <p>${currentUser.name}<br>
+        ${currentUser.address}<br>
+        ${currentUser.phone}</p>
+        <hr>
+        <h6>Items:</h6>
+      `;
+      
+      let total = 0;
+      cartItems.forEach(item => {
+        const itemTotal = item.price * item.quantity;
+        total += itemTotal;
+        receiptHTML += `
+          <div class="d-flex justify-content-between">
+            <span>${item.title} (x${item.quantity})</span>
+            <span>$${itemTotal.toFixed(2)}</span>
+          </div>
+        `;
+      });
+      
+      receiptHTML += `
+        <hr>
+        <div class="d-flex justify-content-between fw-bold">
+          <span>Total</span>
+          <span>$${total.toFixed(2)}</span>
+        </div>
+      `;
+      
+      receiptDetails.innerHTML = receiptHTML;
+      
+      // Switch modals
+      const checkoutModal = bootstrap.Modal.getInstance(document.getElementById('checkoutModal'));
+      checkoutModal.hide();
+      
+      // Clear cart
+      cartItems = [];
+      updateCartCount();
+      
+      // Show receipt
+      const receiptModal = new bootstrap.Modal(document.getElementById('receiptModal'));
+      receiptModal.show();
+    }
+
+    function printReceipt() {
+      window.print();
+    }
+  </script>
+</body>
+</html>
